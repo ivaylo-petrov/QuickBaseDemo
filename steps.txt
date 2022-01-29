@@ -1,0 +1,63 @@
+1. Build Docker Image
+docker build -t ivo/joke_demo .
+
+2. Test localy [http://localhost:8888/] 
+docker run -p 8888:5000 ivo/joke_demo
+
+2. Run container /w image
+docker run -d --publish 8888:5000 ivo/joke_demo
+
+3. Create an Amazon ECR repository to store your joke_demo image. Note the repositoryUri in the output.
+aws ecr create-repository --repository-name name_of_repo --region region
+[aws ecr create-repository --repository-name quickbase-test --region us-east-1]
+
+4. Tag the joke_demo image with the repositoryUri value from the previous step.
+docker tag ivo/joke_demo:latest 259388128881.dkr.ecr.us-east-1.amazonaws.com/quickbase-test
+
+5. Run the aws ecr get-login-password
+aws ecr get-login-password | docker login --username AWS --password-stdin aws_account_id.dkr.ecr.region.amazonaws.com
+[aws ecr get-login-password | docker login --username AWS --password-stdin 259388128881.dkr.ecr.us-east-1.amazonaws.com]
+Login Succeeded
+
+6. Push the image to Amazon ECR with the repositoryUri value from the earlier step.
+docker push 259388128881.dkr.ecr.us-east-1.amazonaws.com/quickbase-test
+
+[ Install ecs-cli if you do not have it
+sudo curl -Lo /usr/local/bin/ecs-cli https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-latest
+sudo apt install gpg
+vi ~/.ecs_pgp
+gpg --import ~/.ecs_pgp 
+curl -Lo ecs-cli.asc https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-latest.asc
+gpg --verify ecs-cli.asc /usr/local/bin/ecs-cli
+sudo chmod +x /usr/local/bin/ecs-cli
+ecs-cli --version
+ecs-cli configure profile --profile-name my_ecs --access-key $AWS_ACCESS_KEY_ID --secret-key $AWS_SECRET_ACCESS_KEY
+ecs-cli configure --cluster QuickBaseCluster --default-launch-type EC2 --region us-east-1 --config-name demo
+ ]
+7. 
+ecs-cli up --capability-iam --size 1 --instance-type t2.medium --cluster-config demo --ecs-profile my_ecs
+Output:
+VPC created: vpc-04a4aa9be7b94a011
+Security Group created: sg-0ace73d440f45df19
+Subnet created: subnet-086d1fa83f859875f
+Subnet created: subnet-093a8af6787a85b69
+Cluster creation succeeded.
+
+8.List Task Definitions
+aws ecs list-clusters
+aws ecs list-task-definitions
+
+9. Run a Task
+aws ecs run-task --cluster QuickBaseCluster --task-definition QB_task:3 --count 1
+
+10. Test
+http://ec2-35-153-71-148.compute-1.amazonaws.com:8888/
+or
+http://35.153.71.148:8888/
+
+
+
+
+
+
+

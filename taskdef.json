@@ -1,0 +1,21 @@
+{
+    "family": "QB_container_family",
+    "containerDefinitions": [
+        {
+            "name": "QB_container",
+            "image": "259388128881.dkr.ecr.us-east-1.amazonaws.com/quickbase-test:latest",
+            "memoryReservation": 512,
+            "portMappings": [
+                {
+                    "containerPort": 5000,
+                    "hostPort": 8888,
+                    "protocol": "tcp"
+                }
+            ],
+            "essential": true
+        }
+    ],
+    "requiresCompatibilities": [
+        "EC2"
+    ]
+}
